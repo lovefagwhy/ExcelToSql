@@ -52,7 +52,7 @@ public class PoiUtil {
             List<String> datas = new ArrayList<>();
             datas.add("--"+row0+"\r\n");
             //拆分合并单元格
-            removeMerge(sheet, props.get("removeMergeB"));
+            removeMerge(sheet, props.get("removeMergeA"));
             String startRowA = props.get("startRowA");
             String endRowA = props.get("endRowA");
             int start;
@@ -192,27 +192,46 @@ public class PoiUtil {
             //先返回XSSF和HSSF对象，再创建一个用于计算公式单元格的对象
             FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             /*双for循环遍历工作簿中单元格*/
-            String title = sheet.getRow(1).getCell(0).getStringCellValue();
             List<String> datas = new ArrayList<>();
-            datas.add("--" + title + "\r\n");
             //拆分合并单元格
             removeMerge(sheet, props.get("removeMergeB"));
             Map<String, String> strMap;
             Map<String, Double> numMap;
             StringBuilder tempSql;
-            String startRowB = props.get("startRowB");
-            String endRowB = props.get("endRowB");
-            int start;
-            int end;
+            String subNumB = props.get("subNumB");
+            int num;
+            int start = 5;
             try {
-                start = Integer.parseInt(startRowB);
-                end = Integer.parseInt(endRowB);
+                num = Integer.parseInt(subNumB);
             } catch (Exception e) {
-                start = 5;
-                end = 17;
+                num = 12;
+            }
+            for (int i = 0; i < sheet.getLastRowNum(); i++) {
+                //指定单元格
+                Row row = sheet.getRow(i);
+                Cell cell = row.getCell(Short.parseShort(0 + ""));
+                if(cell.getCellType() == 0){
+                    double numericCellValue = cell.getNumericCellValue();
+                    if(numericCellValue == 1.0){
+                        start = i;
+                        break;
+                    }
+
+                }else if(cell.getCellType() == 1){
+                    String index = cell.getStringCellValue();
+                    String title = sheet.getRow(i).getCell(0).getStringCellValue();
+                    if(title!=null && title.contains("广东毗邻港")){
+                        datas.add("--" + title + "\r\n");
+                        continue;
+                    }
+                    if("1".equals(index)){
+                        start = i;
+                        break;
+                    }
+                }
             }
             //行循环
-            for (int i = start; i < end; i++) {
+            for (int i = start; i < start+num; i++) {
                 tempSql = new StringBuilder(SQL_B_PRE);
                 strMap = new HashMap<>();
                 numMap = new HashMap<>();
@@ -234,7 +253,7 @@ public class PoiUtil {
                                 String value = c.getStringValue();
                                 switch (j) {
                                     case 1:
-                                        strMap.put("AREA", value.replaceAll("\r|\n*",""));
+                                        putStrOrNum(strMap, value);
                                         break;
                                     case 2:
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
@@ -246,7 +265,7 @@ public class PoiUtil {
                                         strMap.put("PORT_TYPE", value);
                                         break;
                                     case 5:
-                                        strMap.put("BORDER_COUNTRY", value);
+                                        strMap.put("BORDER_COUNTRY", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 6:
                                         strMap.put("P_STATUS", value);
@@ -255,27 +274,33 @@ public class PoiUtil {
                                         strMap.put("G_STATUS", value);
                                         break;
                                     case 7:
-                                        numMap.put("IN_PRESON_1", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("IN_PRESON_1", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("IN_DRIVERS", numMap.get("IN_PRESON_1"));
                                         break;
                                     case 8:
-                                        numMap.put("IN_PRESON_2", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("IN_PRESON_2", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("IN_PASSPORT_1", numMap.get("IN_PRESON_2"));
                                         break;
                                     case 9:
-                                        numMap.put("IN_PRESON_3", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("IN_PRESON_3", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("IN_PASSPORT_2", numMap.get("IN_PRESON_3"));
                                         break;
                                     case 10:
-                                        numMap.put("OUT_PRESON_1", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("OUT_PRESON_1", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("OUT_DRIVERS", numMap.get("OUT_PRESON_1"));
                                         break;
                                     case 11:
-                                        numMap.put("OUT_PRESON_2", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("OUT_PRESON_2", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("OUT_PASSPORT_1", numMap.get("OUT_PRESON_2"));
                                         break;
                                     case 12:
-                                        numMap.put("OUT_PRESON_3", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("OUT_PRESON_3", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("OUT_PASSPORT_2", numMap.get("OUT_PRESON_3"));
                                         break;
                                     default:
@@ -393,6 +418,10 @@ public class PoiUtil {
         }
     }
 
+    private static void putStrOrNum(Map<String, String> strMap, String value) {
+        strMap.put("AREA", value.replaceAll("\r|\n*",""));
+    }
+
     /**
      * Method description :
      * 水运表拆分
@@ -425,28 +454,48 @@ public class PoiUtil {
             //先返回XSSF和HSSF对象，再创建一个用于计算公式单元格的对象
             FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             /*双for循环遍历工作簿中单元格*/
-            String title = sheet.getRow(0).getCell(0).getStringCellValue();
             List<String> datas = new ArrayList<>();
-            datas.add("--" + title + "\r\n");
+
             //拆分合并单元格
-            removeMerge(sheet, props.get("removeMergeB"));
+            removeMerge(sheet, props.get("removeMergeC"));
             Map<String, String> strMap;
             Map<String, Double> numMap;
             StringBuilder tempSql;
             //行循环
-            String startRowB = props.get("startRowC");
-            String endRowB = props.get("endRowC");
-            int start;
-            int end;
+            String subNumC = props.get("subNumC");
+            int num;
+            int start = 3;
             try {
-                start = Integer.parseInt(startRowB);
-                end = Integer.parseInt(endRowB);
+                num = Integer.parseInt(subNumC);
             } catch (Exception e) {
-                start = 3;
-                end = 128;
+                num = 125;
+            }
+            for (int i = 0; i < sheet.getLastRowNum(); i++) {
+                //指定单元格
+                Row row = sheet.getRow(i);
+                Cell cell = row.getCell(Short.parseShort(0 + ""));
+                if(cell.getCellType() == 0){
+                    double numericCellValue = cell.getNumericCellValue();
+                    if(numericCellValue == 1.0){
+                        start = i;
+                        break;
+                    }
+
+                }else if(cell.getCellType() == 1){
+                    String index = cell.getStringCellValue();
+                    String title = sheet.getRow(i).getCell(0).getStringCellValue();
+                    if(title!=null && title.contains("全国水运口岸")){
+                        datas.add("--" + title + "\r\n");
+                        continue;
+                    }
+                    if("1".equals(index)){
+                        start = i;
+                        break;
+                    }
+                }
             }
             //行循环
-            for (int i = start; i < end; i++) {
+            for (int i = start; i < start+num; i++) {
                 tempSql = new StringBuilder(SQL_C_PRE);
                 strMap = new HashMap<>();
                 numMap = new HashMap<>();
@@ -480,18 +529,22 @@ public class PoiUtil {
                                         strMap.put("PORT_TYPE", value);
                                         break;
                                     case 5:
-                                        numMap.put("IN_PRESON_1", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("IN_PRESON_1", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("IN_DRIVERS", numMap.get("IN_PRESON_1"));
                                         break;
                                     case 6:
-                                        numMap.put("IN_PRESON_2", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("IN_PRESON_2", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         break;
                                     case 7:
-                                        numMap.put("OUT_PRESON_1", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("OUT_PRESON_1", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         numMap.put("OUT_DRIVERS", numMap.get("OUT_PRESON_1"));
                                         break;
                                     case 8:
-                                        numMap.put("OUT_PRESON_2", Double.parseDouble(value.replaceAll("[^\\d]+", "")));
+                                        value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
+                                        numMap.put("OUT_PRESON_2", "".equals(value)?0:Double.parseDouble(value.replaceAll("[^\\d]+", "")));
                                         break;
                                     default:
                                         break;
