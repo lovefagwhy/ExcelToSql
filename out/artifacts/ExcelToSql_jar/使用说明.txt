@@ -9,4 +9,4 @@
 	HistoryExcel：存放处理成功表格
 	ExportSql：存在到处Sql文件
 	port.properties：文件中存放边境根据口岸名称和性质查询毗邻口岸数据
-	config.properties: 文件中存放解析边境、广东、水运表过程中，从哪里开始拆分单元格，以及处理第几行到第几行数据
+	config.properties: 文件中存放解析边境、广东、水运表过程中，解析多少行数据(入库的数据条数)
