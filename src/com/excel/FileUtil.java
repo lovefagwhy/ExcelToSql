@@ -94,7 +94,7 @@ public class FileUtil {
                 file.mkdir();
             }
             fName = fName.substring(0, fName.lastIndexOf("."));
-            bw = new BufferedWriter(new FileWriter(path + "/ExportSql/" + dirName + "/" + fName + dirName + ".sql"));
+            bw = new BufferedWriter(new FileWriter(path + "/ExportSql/" + dirName + "/" + fName +"_"+ dirName + ".sql"));
 
             for (String data : datas) {
                 bw.write(data);

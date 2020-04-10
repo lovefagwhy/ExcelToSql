@@ -21,7 +21,7 @@ import java.util.Map;
  * Modified By:
  */
 public class PoiUtil {
-    public static StringBuilder SQL_A_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,P_STATUS,IN_PERSON,In_Passport,OUT_PERSON,Out_Passport,G_STATUS,IN_GOODS,OUT_GOODS,NOTE,BORDER_TYPE,START_DATE,END_DATE) VALUES(");
+    public static StringBuilder SQL_A_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,P_STATUS,IN_PERSON,In_Passport,OUT_PERSON,Out_Passport,G_STATUS,IN_GOODS,OUT_GOODS,NOTE,BORDER_TYPE,START_DATE,END_DATE) VALUES (");
     public static StringBuilder SQL_B_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,PORT_TYPE,BORDER_COUNTRY,G_STATUS,P_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,IN_PASSPORT,OUT_PASSPORT,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static StringBuilder SQL_C_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,PORT_TYPE,G_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static String SQL_SUF = ");\r\n";
@@ -44,26 +44,30 @@ public class PoiUtil {
             if (sheet == null) {
                 return false;
             }
+            //获取 口岸信息
             Map<String, String> portProps = PropertyUtil.getPortProps(path);
+            List<String> datas = new ArrayList<>();
             //获取第一行文本内容  标题
             String row0 = sheet.getRow(0).getCell(0).getStringCellValue();
             //获取第二行文本内容
             String row1 = sheet.getRow(1).getCell(0).getStringCellValue();
-            List<String> datas = new ArrayList<>();
-            datas.add("--"+row0+"\r\n");
+            if(row0!=null && row0.contains("边境口岸运行")){
+                datas.add("--"+row0+"\r\n");
+            }else if(row1!=null && row1.contains("边境口岸运行")){
+                datas.add("--"+row1+"\r\n");
+            }
             //拆分合并单元格
             removeMerge(sheet, props.get("removeMergeA"));
-            String startRowA = props.get("startRowA");
-            String endRowA = props.get("endRowA");
-            int start;
-            int end;
+            //获取解析 坐标点
+            int start = getStart(sheet);
+            String subNumA = props.get("subNumA");
+            int num;
             try {
-                start = Integer.parseInt(startRowA);
-                end = Integer.parseInt(endRowA);
+                num = Integer.parseInt(subNumA);
             } catch (Exception e) {
-                start = 5;
-                end = 82;
+                num = 76;
             }
+            int end = start+num;
             // 循环行Row 从第六行开始
             for (int rowNum = start; rowNum <= end; rowNum++) {
                 Row row = sheet.getRow(rowNum);
@@ -75,59 +79,62 @@ public class PoiUtil {
                 String port_param="";
                 for (int cellNum = 1; cellNum <= row.getLastCellNum(); cellNum++) {
                     Cell cell = row.getCell(cellNum);
+                    if(cell !=null){
+                        cell.setCellType(Cell.CELL_TYPE_STRING);
+                    }
                     switch(cellNum){
                         case 1: // 省份（B列） AREA 字符型
-                            tempSql.append(cell.getStringCellValue()==null?null+",":"'"+cell.getStringCellValue().replaceAll("\r|\n*","")+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
                             break;
-                        case 2: //口岸名称（C列） PORT 字符型
-                            port_param = cell.getStringCellValue().replaceAll("\r|\n*","");
-                            tempSql.append(cell.getStringCellValue()==null?null+",":"'"+cell.getStringCellValue().replaceAll("\r|\n*","")+"',");
-                            break;
-                        case 3: //根据口岸名称（C列）查找对应的国外口岸 BORDER_PORT 字符型  性质（D列） PORT_TYPE 字符型
-                            String port_type = cell.getStringCellValue();
-                            if(port_type!=null && port_type.contains("水/陆")){
-                                String border_port = portProps.get(port_param+"_水/陆运");
-                                if(border_port == null){
-                                    tempSql.append(portProps.get(port_param+"_公路")==null?(null+","):("'"+portProps.get(port_param+"_公路")+"',"));
-                                }else{
-                                    tempSql.append("'"+border_port+"',");
-                                }
-                                tempSql.append("'公路',");
+                        case 2: //口岸名称（C列） PORT 字符型  根据口岸名称（C列）查找对应的国外口岸 BORDER_PORT 字符型
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
+                            if(isNull(cell)){
+                                tempSql.append(null+",");
                             }else{
-                                String border_port = portProps.get(port_param+"_"+port_type.replaceAll("\r|\n*",""));
-                                tempSql.append(border_port==null?null+",":"'"+border_port+"',");
-                                tempSql.append(port_type==null?null+",":"'"+port_type.replaceAll("\r|\n*","")+"',");
+                                String border_port = portProps.get(replacern(cell.getStringCellValue()));
+                                tempSql.append(isNullStr(border_port)?null+",":"'"+border_port+"',");
+                            }
+                            break;
+                        case 3: //  性质（D列） PORT_TYPE 字符型
+                            if(isNull(cell)){
+                                tempSql.append(null+",");
+                            }else{
+                                String port_type = replacern(cell.getStringCellValue());
+                                if(port_type.contains("水/陆")){
+                                    port_type = "公路";
+                                }
+                                tempSql.append(isNullStr(port_type)?null+",":"'"+port_type+"',");
                             }
                             break;
                         case 4: //国家（E列） BORDER_COUNTRY 字符型
-                            tempSql.append(cell.getStringCellValue()==null?null+",":"'"+cell.getStringCellValue().replaceAll("\r|\n*","")+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
                             break;
                         case 5: //客运状态（F列） P_STATUS 字符型
-                            tempSql.append(cell.getStringCellValue()==null?null+",":"'"+cell.getStringCellValue()+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
                             break;
-                        case 6://入境人次（总数）（G列） IN_PERSON 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                        case 6://入境人次（总数）（G列） IN_PERSON 字符型
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
                         case 7: //入境人次（护照）（H列）In_Passport 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
-                        case 8: //出境人次（总数）（I列） OUT_PERSON 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                        case 8: //出境人次（总数）（I列） OUT_PERSON 字符型
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
                         case 9: //出境人次（护照数）（J列） Out_Passport 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
                         case 10: //货运状态(K列)  G_STATUS 字符型
-                            tempSql.append(cell.getStringCellValue()==null?null+",":"'"+cell.getStringCellValue()+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
                             break;
-                        case 11: //进口货物(吨)（L列） IN_GOODS 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                        case 11: //进口货物(吨)（L列） IN_GOODS 字符型
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
-                        case 12: //出口货物(吨)（M列） OUT_GOODS 数字型
-                            tempSql.append(double2int(cell.getNumericCellValue())+",");
+                        case 12: //出口货物(吨)（M列） OUG_GOODS 字符型
+                            tempSql.append(isNull(cell)?"0,":"'"+replacernd(cell.getStringCellValue())+"',");
                             break;
                         case 13: //备注（N列） NOTE 字符型
-                            tempSql.append((cell.getStringCellValue()==null ||"".equals(cell.getStringCellValue())) ?null+",":"'"+cell.getStringCellValue().replaceAll("\r|\n*","")+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
                             break;
                         default:
                             break;
@@ -253,7 +260,7 @@ public class PoiUtil {
                                 String value = c.getStringValue();
                                 switch (j) {
                                     case 1:
-                                        putStrOrNum(strMap, value);
+                                        strMap.put("AREA", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 2:
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
@@ -418,9 +425,6 @@ public class PoiUtil {
         }
     }
 
-    private static void putStrOrNum(Map<String, String> strMap, String value) {
-        strMap.put("AREA", value.replaceAll("\r|\n*",""));
-    }
 
     /**
      * Method description :
@@ -666,6 +670,38 @@ public class PoiUtil {
             }
         }
     }
+    /**
+     * 判断单元格是否为空
+     */
+    public static boolean isNull(Cell cell) {
+        if(cell == null){
+            return true;
+        }else{
+            String str = cell.getStringCellValue();
+            return str == null || str.equals("") || str.equals("0") ||str.equals("0.0");
+        }
+    }
+    public static boolean isNullStr(String str) {
+        return str == null || str.equals("") || str.equals("0") ||str.equals("0.0");
+    }
+    /**
+     * 过滤掉 \r\n
+     */
+    private static String replacern(String value){
+        return value.replaceAll("\r|\n*","");
+    }
+    /**
+     * 判断单元格是否为空
+     */
+    private static String replacernd(String value){
+        return value.replaceAll("\r|\n*","").replaceAll("[^\\d.]+","");
+    }
+
+    /**
+     * double 转 int 去掉 .0
+     * @param d
+     * @return
+     */
     private static String double2int(double d){
         String a = String.valueOf(d);
         if(a.endsWith(".0")){
@@ -673,5 +709,22 @@ public class PoiUtil {
             return b;
         }
         return a;
+    }
+    /**
+     * 获取 读取起始位置
+     */
+    public static int getStart(Sheet sheet) {
+        for (int i = 0; i < 80; i++) {
+            Row row = sheet.getRow(i);
+            Cell cell = sheet.getRow(i).getCell(1);
+            if (cell != null) {
+                cell.setCellType(Cell.CELL_TYPE_STRING);
+            }
+            if ("辽宁".equals(cell.getStringCellValue())) {
+                return i;
+            }
+
+        }
+        return 5;
     }
 }
