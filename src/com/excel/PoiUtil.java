@@ -65,11 +65,11 @@ public class PoiUtil {
             try {
                 num = Integer.parseInt(subNumA);
             } catch (Exception e) {
-                num = 76;
+                num = 77;
             }
             int end = start+num;
             // 循环行Row 从第六行开始
-            for (int rowNum = start; rowNum <= end; rowNum++) {
+            for (int rowNum = start; rowNum < end; rowNum++) {
                 Row row = sheet.getRow(rowNum);
                 if (row == null) {
                     continue;
