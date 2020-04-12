@@ -33,6 +33,7 @@ public class ExcelToSql {
                 for (File f : files) {
                     String fileName = f.getName();
                     System.out.println("                                                  ");
+                    Map<String, String> portProps = PropertyUtil.getPortProps(path);
                     if (fileName.startsWith("A") && (fileName.endsWith(".xlsx")||fileName.endsWith(".xls"))) {
                         aCount++;
                         if (aCount > 1) {
@@ -41,7 +42,7 @@ public class ExcelToSql {
                             continue;
                         }
                         System.out.println("开始解析表格:" + fileName);
-                        Boolean aSuc = PoiUtil.parseAExcel(f, path, dirName,configProps);
+                        Boolean aSuc = PoiUtil.parseAExcel(f, path, dirName,configProps,portProps);
                         FileUtil.moveFile(dirName, path, f, aSuc);
                     } else if (fileName.startsWith("B")&& (fileName.endsWith(".xlsx")||fileName.endsWith(".xls"))) {
                         System.out.println("                                                  ");
@@ -52,7 +53,7 @@ public class ExcelToSql {
                             continue;
                         }
                         System.out.println("开始解析表格:" + fileName);
-                        Boolean bSuc = PoiUtil.parseBExcel(f, path, dirName,configProps);
+                        Boolean bSuc = PoiUtil.parseBExcel(f, path, dirName,configProps,portProps);
                         FileUtil.moveFile(dirName, path, f, bSuc);
                     } else if (fileName.startsWith("C")&& (fileName.endsWith(".xlsx")||fileName.endsWith(".xls"))) {
                         System.out.println("                                                  ");

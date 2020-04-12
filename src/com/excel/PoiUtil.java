@@ -22,13 +22,13 @@ import java.util.Map;
  */
 public class PoiUtil {
     public static StringBuilder SQL_A_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,P_STATUS,IN_PERSON,In_Passport,OUT_PERSON,Out_Passport,G_STATUS,IN_GOODS,OUT_GOODS,NOTE,BORDER_TYPE,START_DATE,END_DATE) VALUES (");
-    public static StringBuilder SQL_B_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,PORT_TYPE,BORDER_COUNTRY,G_STATUS,P_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,IN_PASSPORT,OUT_PASSPORT,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
+    public static StringBuilder SQL_B_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,G_STATUS,P_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,IN_PASSPORT,OUT_PASSPORT,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static StringBuilder SQL_C_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,PORT_TYPE,G_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static String SQL_SUF = ");\r\n";
     public final static String XLS = "xls";
 
     //边区
-    public static Boolean parseAExcel(File f, String path, String dirName, Map<String, String> props) throws Exception {
+    public static Boolean parseAExcel(File f, String path, String dirName, Map<String, String> props,Map<String,String> portProps) throws Exception {
         FileInputStream fi = null;
         Workbook wb;
         boolean isTr = false;
@@ -45,7 +45,6 @@ public class PoiUtil {
                 return false;
             }
             //获取 口岸信息
-            Map<String, String> portProps = PropertyUtil.getPortProps(path);
             List<String> datas = new ArrayList<>();
             //获取第一行文本内容  标题
             String row0 = sheet.getRow(0).getCell(0).getStringCellValue();
@@ -175,7 +174,7 @@ public class PoiUtil {
      * dirName:表格所在目录，为cmd窗口录入
      * Author：  liuzhuang
      */
-    public static Boolean parseBExcel(File f, String path, String dirName, Map<String, String> props) {
+    public static Boolean parseBExcel(File f, String path, String dirName, Map<String, String> props,Map<String,String> portProps) {
         //创建工作簿对象
         Workbook wb;
         FileInputStream fi = null;
@@ -341,17 +340,14 @@ public class PoiUtil {
                                         break;
                                     case 7:
                                         numMap.put("IN_PRESON_1", dvalue);
-                                        System.out.println(dvalue);
                                         numMap.put("IN_DRIVERS", dvalue);
                                         break;
                                     case 8:
                                         numMap.put("IN_PRESON_2", dvalue);
-                                        System.out.println(dvalue);
                                         numMap.put("IN_PASSPORT_1", dvalue);
                                         break;
                                     case 9:
                                         numMap.put("IN_PRESON_3", dvalue);
-                                        System.out.println(dvalue);
                                         numMap.put("IN_PASSPORT_2", dvalue);
                                         break;
                                     case 10:
@@ -378,6 +374,12 @@ public class PoiUtil {
                 tempSql.append((area == null || "".equals(area)) ? null + "," : "'" + area + "',");
                 String port = strMap.get("PORT");
                 tempSql.append((port == null || "".equals(port)) ? null + "," : "'" + port + "',");
+                if(port!=null && !"".equals(port)){
+                    String border_port = portProps.get(port);
+                    tempSql.append((border_port == null || "".equals(border_port)) ? null + "," : "'" + border_port + "',");
+                }else{
+                    tempSql.append(null + ",");
+                }
                 tempSql.append(strMap.get("PORT_TYPE") == null ? null + "," : "'" + strMap.get("PORT_TYPE") + "',");
                 String border_country = strMap.get("BORDER_COUNTRY");
                 tempSql.append(border_country == null ? null + "," : "'" + border_country + "',");
