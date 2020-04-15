@@ -60,7 +60,8 @@ public class PropertyUtil {
         while (it.hasNext()) {
             key = it.next();
             value = prop.getProperty(key);
-            map.put(key, value);
+            key = new String(key.getBytes("iso-8859-1"), "GBK");
+            map.put(key, new String(value.getBytes("iso-8859-1"), "GBK"));
             System.out.println(key + ":" + map.get(key));
         }
         System.out.println("                                                  ");

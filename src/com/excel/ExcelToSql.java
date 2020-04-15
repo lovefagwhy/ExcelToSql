@@ -10,7 +10,6 @@ public class ExcelToSql {
         try {
             //获取录入日期目录
             String dirName = FileUtil.getFileDir();
-//            String dirName = "20201010";
             if (dirName == null) {
                 System.out.println("输入为空，结束程序");
                 return;

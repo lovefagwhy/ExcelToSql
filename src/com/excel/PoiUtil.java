@@ -66,6 +66,10 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 77;
             }
+            String reg = props.get("REG");
+            if(reg == null ||"".equals(reg)){
+                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+            }
             int end = start+num;
             // 循环行Row 从第六行开始
             for (int rowNum = start; rowNum < end; rowNum++) {
@@ -83,7 +87,7 @@ public class PoiUtil {
                     }
                     switch(cellNum){
                         case 1: // 省份（B列） AREA 字符型
-                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacernNum(cell.getStringCellValue(),reg)+"',");
                             break;
                         case 2: //口岸名称（C列） PORT 字符型  根据口岸名称（C列）查找对应的国外口岸 BORDER_PORT 字符型
                             tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
@@ -106,7 +110,7 @@ public class PoiUtil {
                             }
                             break;
                         case 4: //国家（E列） BORDER_COUNTRY 字符型
-                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacernNum(cell.getStringCellValue(),reg)+"',");
                             break;
                         case 5: //客运状态（F列） P_STATUS 字符型
                             tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
@@ -212,6 +216,10 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 12;
             }
+            String reg = props.get("REG");
+            if(reg == null ||"".equals(reg)){
+                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+            }
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
                 Row row = sheet.getRow(i);
@@ -259,25 +267,25 @@ public class PoiUtil {
                                 String value = c.getStringValue();
                                 switch (j) {
                                     case 1:
-                                        strMap.put("AREA", value.replaceAll("\r|\n*",""));
+                                        strMap.put("AREA", replacernNum(value,reg));
                                         break;
                                     case 2:
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 3:
-                                        strMap.put("PORT", value.replaceAll("\r|\n*",""));
+                                        strMap.put("PORT", replacern(value));
                                         break;
                                     case 4:
-                                        strMap.put("PORT_TYPE", value);
+                                        strMap.put("PORT_TYPE", replacern(value));
                                         break;
                                     case 5:
-                                        strMap.put("BORDER_COUNTRY", value.replaceAll("\r|\n*",""));
+                                        strMap.put("BORDER_COUNTRY", replacernNum(value,reg));
                                         break;
                                     case 6:
-                                        strMap.put("P_STATUS", value);
+                                        strMap.put("P_STATUS", replacern(value));
                                         break;
                                     case 13:
-                                        strMap.put("G_STATUS", value);
+                                        strMap.put("G_STATUS", replacern(value));
                                         break;
                                     case 7:
                                         value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
@@ -476,6 +484,10 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 125;
             }
+            String reg = props.get("REG");
+            if(reg == null ||"".equals(reg)){
+                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+            }
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
                 Row row = sheet.getRow(i);
@@ -523,16 +535,16 @@ public class PoiUtil {
                                 String value = c.getStringValue();
                                 switch (j) {
                                     case 1:
-                                        strMap.put("AREA", value.replaceAll("\r|\n*",""));
+                                        strMap.put("AREA", replacernNum(value,reg));
                                         break;
                                     case 2:
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 3:
-                                        strMap.put("PORT", value.replaceAll("\r|\n*",""));
+                                        strMap.put("PORT", replacern(value));
                                         break;
                                     case 4:
-                                        strMap.put("PORT_TYPE", value);
+                                        strMap.put("PORT_TYPE", replacern(value));
                                         break;
                                     case 5:
                                         value = value.replaceAll("[^0-9]+", "").replaceAll("[^\\d]+", "");
@@ -693,6 +705,12 @@ public class PoiUtil {
         return value.replaceAll("\r|\n*","");
     }
     /**
+     * 过滤掉 \r\n和数字和（） () 和其他字符
+     */
+    private static String replacernNum(String value,String reg){
+        return value.replaceAll(reg, "");
+    }
+    /**
      * 判断单元格是否为空
      */
     private static String replacernd(String value){
@@ -717,12 +735,12 @@ public class PoiUtil {
      */
     public static int getStart(Sheet sheet) {
         for (int i = 0; i < 80; i++) {
-            Row row = sheet.getRow(i);
             Cell cell = sheet.getRow(i).getCell(1);
             if (cell != null) {
                 cell.setCellType(Cell.CELL_TYPE_STRING);
             }
-            if ("辽宁".equals(cell.getStringCellValue())) {
+            String cellValue = cell.getStringCellValue();
+            if ( cellValue!=null &&cellValue.startsWith("辽宁")) {
                 return i;
             }
 
