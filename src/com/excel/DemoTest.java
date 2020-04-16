@@ -7,8 +7,10 @@ package com.excel;
  */
 public class DemoTest {
     public static void main(String[] args){
-        String string = "辽\n33,23宁/(12)!d..。，大@#$%^&*~\r\n天津（1）";
+        String string = "辽\n33,23宁/(12)!d..。，;；；】、大@#$%^&*~\r\n天津（1）";
         String s = string.replaceAll("(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*", "");
         System.out.println(s);
+        String s1 = string.replaceAll("[^\\u4e00-\\u9fa5]", "");
+        System.out.println(s1);
     }
 }

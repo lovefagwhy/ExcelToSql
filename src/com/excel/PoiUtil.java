@@ -68,7 +68,7 @@ public class PoiUtil {
             }
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
-                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+                reg = "[^\\u4e00-\\u9fa5]";
             }
             int end = start+num;
             // 循环行Row 从第六行开始
@@ -218,7 +218,7 @@ public class PoiUtil {
             }
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
-                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+                reg = "[^\\u4e00-\\u9fa5]";
             }
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
@@ -486,7 +486,7 @@ public class PoiUtil {
             }
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
-                reg = "(\r|\n|[0-9]|[a-zA-Z]|（|）|\\.|\\,|\\，|\\。|/|\\(|\\)|#|\\^|@|\\$|%|&|\\*|!|\\~)*";
+                reg = "[^\\u4e00-\\u9fa5]";
             }
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
