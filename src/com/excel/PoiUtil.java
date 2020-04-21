@@ -488,6 +488,7 @@ public class PoiUtil {
             if(reg == null ||"".equals(reg)){
                 reg = "[^\\u4e00-\\u9fa5]";
             }
+            //获取序号为1的行索引
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
                 Row row = sheet.getRow(i);
