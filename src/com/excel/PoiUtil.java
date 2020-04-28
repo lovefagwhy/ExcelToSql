@@ -90,11 +90,11 @@ public class PoiUtil {
                             tempSql.append(isNull(cell)?null+",":"'"+replacernNum(cell.getStringCellValue(),reg)+"',");
                             break;
                         case 2: //口岸名称（C列） PORT 字符型  根据口岸名称（C列）查找对应的国外口岸 BORDER_PORT 字符型
-                            tempSql.append(isNull(cell)?null+",":"'"+replacern(cell.getStringCellValue())+"',");
+                            tempSql.append(isNull(cell)?null+",":"'"+replacernNum(cell.getStringCellValue(),reg)+"',");
                             if(isNull(cell)){
                                 tempSql.append(null+",");
                             }else{
-                                String border_port = portProps.get(replacern(cell.getStringCellValue()));
+                                String border_port = portProps.get(replacernNum(cell.getStringCellValue(),reg));
                                 tempSql.append(isNullStr(border_port)?null+",":"'"+border_port+"',");
                             }
                             break;
@@ -273,7 +273,7 @@ public class PoiUtil {
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 3:
-                                        strMap.put("PORT", (strMap.get("AREA")==null?"":strMap.get("AREA"))+replacern(value));
+                                        strMap.put("PORT", (strMap.get("AREA")==null?"":strMap.get("AREA"))+replacernNum(value,reg));
                                         strMap.put("AREA", "广东");
                                         break;
                                     case 4:
@@ -389,7 +389,14 @@ public class PoiUtil {
                 }else{
                     tempSql.append(null + ",");
                 }
-                tempSql.append(strMap.get("PORT_TYPE") == null ? null + "," : "'" + strMap.get("PORT_TYPE") + "',");
+                String port_type = strMap.get("PORT_TYPE")== null ? null :strMap.get("PORT_TYPE");
+                if(port_type == null){
+                    tempSql.append(null+",");
+                }else if(port_type.startsWith("水")){
+                    tempSql.append("'水运',");
+                }else{
+                    tempSql.append("'"+port_type+"',");
+                }
                 String border_country = strMap.get("BORDER_COUNTRY");
                 tempSql.append(border_country == null ? null + "," : "'" + border_country + "',");
                 String gStatus = strMap.get("G_STATUS");
@@ -543,7 +550,7 @@ public class PoiUtil {
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 3:
-                                        strMap.put("PORT", replacern(value));
+                                        strMap.put("PORT", replacernNum(value,reg));
                                         break;
                                     case 4:
                                         strMap.put("PORT_TYPE", replacern(value));

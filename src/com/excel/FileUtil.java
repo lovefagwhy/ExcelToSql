@@ -41,7 +41,7 @@ public class FileUtil {
     }
 
     public static String getFileDir() {
-        System.out.println("请输入导入EXCEL所在目录名称，格式[yyyyMMdd,例如:20200101]：");
+        System.out.println("请输入导入EXCEL所在目录名称，格式[yyyyMMdd,例如:20200101+20200102+20200102]：");
         Scanner scanner = null;
         String str = null;
         try {
