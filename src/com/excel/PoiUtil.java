@@ -66,9 +66,15 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 77;
             }
+            //中文字段  去除非中文字符正则
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
                 reg = "[^\\u4e00-\\u9fa5]";
+            }
+            //是否需要将口岸性质 里的水/陆运  改成水运
+            String isChange = props.get("IS_PORT_TYPE_CHANGE");
+            if(isChange == null ||"".equals(isChange)){
+                isChange = "0";
             }
             int end = start+num;
             // 循环行Row 从第六行开始
@@ -79,7 +85,6 @@ public class PoiUtil {
                 }
                 // 循环列Cell
                 StringBuilder tempSql=new StringBuilder(SQL_A_PRE);
-                String port_param="";
                 for (int cellNum = 1; cellNum <= row.getLastCellNum(); cellNum++) {
                     Cell cell = row.getCell(cellNum);
                     if(cell !=null){
@@ -103,8 +108,10 @@ public class PoiUtil {
                                 tempSql.append(null+",");
                             }else{
                                 String port_type = replacern(cell.getStringCellValue());
-                                if(port_type.contains("水/陆")){
-                                    port_type = "公路";
+                                if(!"0".equals(isChange)){
+                                    if(port_type.contains("水/陆")){
+                                        port_type = "公路";
+                                    }
                                 }
                                 tempSql.append(isNullStr(port_type)?null+",":"'"+port_type+"',");
                             }
@@ -216,10 +223,17 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 12;
             }
+            //中文字段  去除非中文字符正则
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
                 reg = "[^\\u4e00-\\u9fa5]";
             }
+            //是否需要将口岸性质 里的水/陆运  改成水运
+            String isChange = props.get("IS_PORT_TYPE_CHANGE");
+            if(isChange == null ||"".equals(isChange)){
+                isChange = "0";
+            }
+
             for (int i = 0; i < sheet.getLastRowNum(); i++) {
                 //指定单元格
                 Row row = sheet.getRow(i);
@@ -392,7 +406,7 @@ public class PoiUtil {
                 String port_type = strMap.get("PORT_TYPE")== null ? null :strMap.get("PORT_TYPE");
                 if(port_type == null){
                     tempSql.append(null+",");
-                }else if(port_type.startsWith("水")){
+                }else if(port_type.startsWith("水") && "1".equals(isChange)){
                     tempSql.append("'水运',");
                 }else{
                     tempSql.append("'"+port_type+"',");
@@ -492,6 +506,7 @@ public class PoiUtil {
             } catch (Exception e) {
                 num = 125;
             }
+            //中文字段  去除非中文字符正则
             String reg = props.get("REG");
             if(reg == null ||"".equals(reg)){
                 reg = "[^\\u4e00-\\u9fa5]";

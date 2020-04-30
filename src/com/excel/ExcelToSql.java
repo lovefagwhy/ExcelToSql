@@ -16,11 +16,17 @@ public class ExcelToSql {
                 return;
             }
             String[] nameS = dirName.split("[+]");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             if(nameS!=null && nameS.length>0){
-
                 for (String name : nameS) {
                     if(!"".equals(name)){
-                        dealExcel(name);
+                        try{
+                            //判断时间格式是否可以格式化
+                            simpleDateFormat.parse(name);
+                            dealExcel(name);
+                        }catch (Exception e){
+                            System.out.println("目录不是合法的日期格式[yyyyMMdd]"+name);
+                        }
                     }
                 }
             }
