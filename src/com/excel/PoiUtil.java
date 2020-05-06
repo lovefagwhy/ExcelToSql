@@ -265,6 +265,9 @@ public class PoiUtil {
                 numMap = new HashMap<>();
                 //行对象
                 Row row = sheet.getRow(i);
+                if(row == null){
+                    continue;
+                }
                 //取最后一列列号
                 int cellNum = row.getLastCellNum();
                 //列循环
@@ -543,6 +546,9 @@ public class PoiUtil {
                 numMap = new HashMap<>();
                 //行对象
                 Row row = sheet.getRow(i);
+                if(row == null){
+                    continue;
+                }
                 //取最后一列列号
                 int cellNum = row.getLastCellNum();
                 //列循环
@@ -633,7 +639,15 @@ public class PoiUtil {
                 String area = strMap.get("AREA");
                 tempSql.append((area == null || "".equals(area)) ? null + "," : "'" + area + "',");
                 String port = strMap.get("PORT");
-                tempSql.append((port == null || "".equals(port)) ? null + "," : "'" + port + "',");
+                if(port == null || "".equals(port)){
+                    tempSql.append( null + "," );
+                }else if(port.startsWith("蛇口")){
+                    tempSql.append(  "'蛇口',");
+                }else if(port.startsWith("惠州")){
+                    tempSql.append(  "'惠州',");
+                }else{
+                    tempSql.append("'" + port + "',");
+                }
                 tempSql.append(strMap.get("PORT_TYPE") == null ? null + "," : "'" + strMap.get("PORT_TYPE") + "',");
                 tempSql.append("'水运','1',");
                 tempSql.append((numMap.get("IN_PRESON_1") == null ? 0 : numMap.get("IN_PRESON_1").intValue()) + (numMap.get("IN_PRESON_2") == null ? 0 : numMap.get("IN_PRESON_2").intValue()));
