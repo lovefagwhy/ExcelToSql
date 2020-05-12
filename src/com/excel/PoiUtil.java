@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class PoiUtil {
     public static StringBuilder SQL_A_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,P_STATUS,IN_PERSON,In_Passport,OUT_PERSON,Out_Passport,G_STATUS,IN_GOODS,OUT_GOODS,NOTE,BORDER_TYPE,START_DATE,END_DATE) VALUES (");
-    public static StringBuilder SQL_B_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,G_STATUS,P_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,IN_PASSPORT,OUT_PASSPORT,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
+    public static StringBuilder SQL_B_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,BORDER_PORT,PORT_TYPE,BORDER_COUNTRY,G_STATUS,P_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,IN_PASSPORT,IN_PASSPORT_FOREIGN,OUT_PASSPORT,OUT_PASSPORT_FOREIGN,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static StringBuilder SQL_C_PRE = new StringBuilder("INSERT INTO SW_BORDER_INFO(AREA,PORT,PORT_TYPE,G_STATUS,BORDER_TYPE,IN_PERSON,OUT_PERSON,In_DRIVERS,Out_DRIVERS,NOTE,START_DATE,END_DATE) VALUES(");
     public static String SQL_SUF = ");\r\n";
     public final static String XLS = "xls";
@@ -425,9 +425,17 @@ public class PoiUtil {
                 tempSql.append(",");
                 tempSql.append((numMap.get("OUT_PRESON_1") == null ? 0 : numMap.get("OUT_PRESON_1").intValue()) + (numMap.get("OUT_PRESON_2") == null ? 0 : numMap.get("OUT_PRESON_2").intValue()) + (numMap.get("OUT_PRESON_3") == null ? 0 : numMap.get("OUT_PRESON_3").intValue()));
                 tempSql.append(",");
+                //入境护照总数
                 tempSql.append((numMap.get("IN_PASSPORT_1") == null ? 0 : numMap.get("IN_PASSPORT_1").intValue()) + (numMap.get("IN_PASSPORT_2") == null ? 0 : numMap.get("IN_PASSPORT_2").intValue()));
                 tempSql.append(",");
+                //外方入境护照数量
+                tempSql.append(numMap.get("IN_PASSPORT_2") == null ? 0 : numMap.get("IN_PASSPORT_2").intValue());
+                tempSql.append(",");
+                //出境护照总数
                 tempSql.append((numMap.get("OUT_PASSPORT_1") == null ? 0 : numMap.get("OUT_PASSPORT_1").intValue()) + (numMap.get("OUT_PASSPORT_2") == null ? 0 : numMap.get("OUT_PASSPORT_2").intValue()));
+                tempSql.append(",");
+                //外方出境护照数量
+                tempSql.append(numMap.get("OUT_PASSPORT_2") == null ? 0 : numMap.get("OUT_PASSPORT_2").intValue());
                 tempSql.append(",");
                 tempSql.append(numMap.get("IN_DRIVERS") == null ? 0 : numMap.get("IN_DRIVERS").intValue());
                 tempSql.append(",");
