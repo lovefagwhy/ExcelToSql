@@ -290,7 +290,7 @@ public class PoiUtil {
                                         strMap.put("NOTE", value.replaceAll("\r|\n*",""));
                                         break;
                                     case 3:
-                                        strMap.put("PORT", (strMap.get("AREA")==null?"":strMap.get("AREA"))+replacernNum(value,reg));
+                                        strMap.put("PORT", replacernNum(value,reg));
                                         strMap.put("AREA", "广东");
                                         break;
                                     case 4:
